@@ -1,18 +1,44 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
-const schema = z.object({ email: z.string().trim().toLowerCase().email("Enter a valid email address.") });
+// Demo storage (temporary; use a database for production).
+const emails = new Set();
 
-// Demo storage. On serverless this resets between cold starts —
-// swap for MongoDB / Vercel KV / Supabase to persist real signups.
-const emails = new Set<string>();
+export async function POST(req) {
+  try {
+    const body = await req.json();
 
-export async function POST(req: Request) {
-  const body = await req.json().catch(() => null);
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
-  const { email } = parsed.data;
-  if (emails.has(email)) return NextResponse.json({ message: "You're already on the list." });
-  emails.add(email);
-  return NextResponse.json({ message: "You're on the list. We'll email you at launch." }, { status: 201 });
+    const email = body?.email?.trim().toLowerCase();
+
+    // Validate email
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json(
+        { error: "Please enter a valid email address." },
+        { status: 400 }
+      );
+    }
+
+    // Check duplicate email
+    if (emails.has(email)) {
+      return NextResponse.json({
+        message: "You're already on the list.",
+      });
+    }
+
+    // Store email
+    emails.add(email);
+
+    return NextResponse.json(
+      {
+        message: "You're on the list. We'll email you at launch.",
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Waitlist API error:", error);
+
+    return NextResponse.json(
+      { error: "Something went wrong. Please try again." },
+      { status: 500 }
+    );
+  }
 }

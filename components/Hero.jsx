@@ -39,7 +39,7 @@ export default function Hero() {
               ))}
             </div>
           </div>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <div className="my-8 flex flex-wrap items-center gap-4">
             <a href="#waitlist" className="rounded-full bg-coral px-7 py-3.5 font-semibold text-ink transition hover:brightness-110">Reserve yours for $199</a>
             <a href="#features" className="px-3 py-3.5 text-mist/80 hover:text-white">See what&apos;s inside</a>
           </div>

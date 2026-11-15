@@ -9,13 +9,37 @@ export default function Waitlist() {
 
   async function submit(e) {
     e.preventDefault();
+
+    if (state === "loading") return;
+
     setState("loading");
+    setMsg("");
+
     try {
-      const res = await fetch("/api/waitlist", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Something went wrong");
-      setMsg(data.message); setState("done");
-    } catch (err) { setMsg(err.message); setState("error"); }
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong. Please try again.");
+      }
+
+      setMsg(data.message || "Successfully joined the waitlist.");
+      setState("done");
+    } catch (err) {
+      setMsg(
+        err instanceof Error
+          ? err.message
+          : "Unable to join the waitlist. Please try again."
+      );
+      setState("error");
+    }
   }
 
   return (
@@ -30,7 +54,7 @@ export default function Waitlist() {
             <label htmlFor="email" className="sr-only">Email address</label>
             <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
               className="w-full rounded-full border border-white/15 bg-white/5 px-5 py-3.5 text-white placeholder:text-mist/40" />
-            <button disabled={state === "loading"} className="inline-flex items-center justify-center gap-2 rounded-full bg-coral px-6 py-3.5 font-semibold text-ink transition hover:brightness-110 disabled:opacity-60">
+            <button disabled={state === "loading"} className="inline-flex whitespace-nowrap cursor-pointer items-center justify-center gap-2 rounded-full bg-coral px-6 py-1.5 font-semibold text-ink transition hover:brightness-110 disabled:opacity-60">
               {state === "loading" && <Loader2 className="size-4 animate-spin" />} Join waitlist
             </button>
           </form>
