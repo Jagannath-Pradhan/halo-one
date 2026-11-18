@@ -21,3 +21,6 @@ body { background: var(--color-ink); color: var(--color-mist); font-family: var(
     var(--color-ink);
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; } }
+
+@keyframes float-y { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-14px) rotate(4deg); } }
+.float { animation: float-y 5s ease-in-out infinite; }
